@@ -1,31 +1,22 @@
-const http = require('http');
-const url = require('url');
+const http = require("http");
+const url = require("url");
 
-const morgan = require('morgan');
+const morgan = require("morgan");
 
-const defaultRouter = require('./routers/default.router');
-const productsRouter = require('./routers/products.router');
-const usersRouter = require('./routers/users.router');
+const RouteHandlers = require("./handlers/route.handlers");
 
-const paths = Object.entries(QuestionsRouter)
-    .map(([ routeStr, handler ]) => {
-        const [ method, url ] = routeStr.split(' ');
-        return { method, url, handler };
-    });
-
-const logger = morgan('combined');
+const logger = morgan("combined");
 
 const startServer = port => {
-
-  const server = http.createServer((request, response) => {
-
+  const server = http.createServer((req, res) => {
     // Get route from the request
-    const parsedUrl = url.parse(request.url);
+    const route = url.parse(req.url).pathname;
 
+    debugger;
     // Get router function
-    const func = router[parsedUrl.pathname] || router.default;
+    const func = RouteHandlers.getHandler(route, req.method);
 
-    logger(request, response, () => func(request, response));
+    logger(req, res, () => func(req, res));
   });
 
   server.listen(port);

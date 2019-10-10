@@ -1,7 +1,7 @@
 const ProductsController = require("../controllers/products.controller");
 
 const ProductsRouter = {
-  "GET /products": ProductsController.getAllProducts,
+  "/products": { GET: ProductsController.getAllProducts }
 };
 
 module.exports = ProductsRouter;
