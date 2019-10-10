@@ -1,7 +1,20 @@
-const defaultRoute = (req, res) => {
-  res.writeHead(200, { "Content-Type": "text/html" });
-  res.write("<h1>DEFAULT 200</h1>");
-  res.end();
-};
+const url = require("url");
 
-module.exports = defaultRoute;
+class DefaultController {
+  static defaultRoute(req, res) {
+    const resource = url.parse(req.url).pathname;
+
+    res.statusCode = 404;
+    res.end(`"${resource}" not found`);
+  }
+
+  static defaultMethod(req, res) {
+    const resource = url.parse(req.url).pathname;
+    const method = req.method;
+
+    res.statusCode = 405;
+    res.end(`Method "${method}" not allowed for "${resource}"`);
+  }
+}
+
+module.exports = DefaultController;

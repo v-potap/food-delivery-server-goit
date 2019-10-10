@@ -4,10 +4,14 @@ const UsersRouter = require("../routers/users.router");
 
 class RouteHandlers {
   static getHandler(route, method) {
-    const routes = DefaultRouter;
-    const { r } = { ProductsRouter, UsersRouter };
+    const routes = { ...DefaultRouter, ...ProductsRouter, ...UsersRouter };
+    const routeToProceed = routes[route];
 
-    return routes.default;
+    if (!routeToProceed) {
+      return routes.default;
+    } else {
+      return routeToProceed[method] || routeToProceed.default;
+    }
   }
 }
 

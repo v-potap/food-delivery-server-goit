@@ -5,7 +5,7 @@ class ProductsController {
   static getAllProducts(req, res) {
     const productsPath = path.join(
       __dirname,
-      "../../db/products",
+      "../db/products",
       "all-products.json"
     );
 

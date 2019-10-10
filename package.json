@@ -20,6 +20,7 @@
   "homepage": "https://github.com/v-potap/food-delivery-server-goit#readme",
   "dependencies": {
     "morgan": "^1.9.1",
-    "nodemon": "^1.19.3"
+    "nodemon": "^1.19.3",
+    "querystring": "^0.2.0"
   }
 }

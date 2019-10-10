@@ -1,7 +1,7 @@
-const defaultRoute = require("../controllers/default.controller");
+const DefaultRoute = require("../controllers/default.controller");
 
 const DefaultRouter = {
-  default: defaultRoute
+  default: DefaultRoute.defaultRoute
 };
 
 module.exports = DefaultRouter;
