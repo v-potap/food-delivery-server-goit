@@ -5,7 +5,7 @@ class DefaultController {
     const resource = url.parse(req.url).pathname;
 
     res.statusCode = 404;
-    res.end(`"${resource}" not found`);
+    res.end(`Route "${resource}" not found`);
   }
 
   static defaultMethod(req, res) {
@@ -13,7 +13,7 @@ class DefaultController {
     const method = req.method;
 
     res.statusCode = 405;
-    res.end(`Method "${method}" not allowed for "${resource}"`);
+    res.end(`Method "${method}" not allowed for route "${resource}"`);
   }
 }
 

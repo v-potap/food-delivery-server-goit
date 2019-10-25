@@ -12,6 +12,8 @@ const startServer = port => {
     // Get route from the request
     const route = url.parse(req.url).pathname;
 
+debugger
+
     // Get router function
     const func = RouteHandlers.getHandler(route, req.method);
 
@@ -19,6 +21,8 @@ const startServer = port => {
   });
 
   server.listen(port);
+
+  console.log(`Server is listening on ${port}`);
 };
 
 module.exports = startServer;
