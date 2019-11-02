@@ -59,20 +59,29 @@ class ProductsController {
     }
 
     if (categories.length > 0) {
-      filteredProducts = filteredProducts.filter(product =>
-        product.categories.includes(categories)
-      );
+      filteredProducts = filteredProducts.filter(product => {
+        const productsOfCategory = product.categories.filter(category =>
+          categories.includes(category)
+        );
+        return productsOfCategory.length > 0;
+      });
     }
 
-    debugger;
-
-    res.writeHead(200, {
-      "Content-Type": "application/json"
-    });
-
-    const readStream = fs.createReadStream(productsPath);
-
-    readStream.pipe(res);
+    if (filteredProducts.length > 0) {
+      res.writeHead(200, "OK", {
+        "Content-Type": "application/json"
+      });
+      res.end(
+        JSON.stringify({ status: "success", products: filteredProducts })
+      );
+    } else {
+      res.writeHead(400, "Error: invalid request", {
+        "Content-Type": "application/json"
+      });
+      res.end(
+        JSON.stringify({ status: "no products", products: filteredProducts })
+      );
+    }
   }
 }
 
