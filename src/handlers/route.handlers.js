@@ -13,6 +13,28 @@ class RouteHandlers {
       return routeToProceed[method] || routeToProceed.default;
     }
   }
+
+  static getBaseRoute(route) {
+    const baseRouteEndPoint = route.indexOf("/", 1);
+
+    if (baseRouteEndPoint == -1) {
+      return route;
+    } else {
+      return route.slice(0, baseRouteEndPoint + 1);
+    }
+  }
+
+  static getSpecificRoute(route) {
+    const baseRouteEndPoint = route.indexOf("/", 1);
+
+    if (baseRouteEndPoint == -1) {
+      return undefined;
+    } else {
+      return route.slice(baseRouteEndPoint + 1) === ""
+        ? undefined
+        : route.slice(baseRouteEndPoint + 1);
+    }
+  }
 }
 
 module.exports = RouteHandlers;

@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "debug": "node --inspect index.js"
+    "start": "nodemon index.js",
+    "debug": "nodemon --inspect index.js"
   },
   "repository": {
     "type": "git",
@@ -19,8 +19,19 @@
   },
   "homepage": "https://github.com/v-potap/food-delivery-server-goit#readme",
   "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
     "morgan": "^1.9.1",
-    "nodemon": "^1.19.3",
     "querystring": "^0.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.4"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "src/db/*",
+      "docs/*"
+    ],
+    "delay": "2500"
   }
 }
