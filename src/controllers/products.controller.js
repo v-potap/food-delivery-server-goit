@@ -29,9 +29,10 @@ class ProductsController {
     );
     const route = url.parse(req.url).pathname;
     const specificRoute = RouteHandlers.getSpecificRoute(route);
-    const ids = qs.parse(url.parse(req.url).query)["ids"];
+    const productIDs = qs.parse(url.parse(req.url).query)["ids"];
+    const categoryIDs = qs.parse(url.parse(req.url).query)["category"];
 
-    if (!specificRoute && !ids) {
+    if (!specificRoute && !productIDs && !categoryIDs) {
       res.writeHead(400, "Error: invalid request", {
         "Content-Type": "application/json"
       });
@@ -39,7 +40,29 @@ class ProductsController {
       return;
     }
 
-    const products = ids ? ids.split(",") : [specificRoute];
+    const products = productIDs
+      ? productIDs.split(",")
+      : specificRoute
+      ? [specificRoute]
+      : [];
+    const categories = categoryIDs ? categoryIDs.split(",") : [];
+    const allProducts = JSON.parse(fs.readFileSync(productsPath));
+
+    let filteredProducts = [];
+
+    if (products.length > 0) {
+      filteredProducts = allProducts.filter(product =>
+        products.includes(product.id + "")
+      );
+    } else {
+      filteredProducts = [...allProducts];
+    }
+
+    if (categories.length > 0) {
+      filteredProducts = filteredProducts.filter(product =>
+        product.categories.includes(categories)
+      );
+    }
 
     debugger;
 

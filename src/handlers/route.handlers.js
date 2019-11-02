@@ -28,9 +28,11 @@ class RouteHandlers {
     const baseRouteEndPoint = route.indexOf("/", 1);
 
     if (baseRouteEndPoint == -1) {
-      return "";
+      return undefined;
     } else {
-      return route.slice(baseRouteEndPoint + 1);
+      return route.slice(baseRouteEndPoint + 1) === ""
+        ? undefined
+        : route.slice(baseRouteEndPoint + 1);
     }
   }
 }
