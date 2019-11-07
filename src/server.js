@@ -1,27 +1,25 @@
-const http = require("http");
-const url = require("url");
-
+const express = require("express");
+const bodyParser = require("body-parser");
 const morgan = require("morgan");
+const path = require("path");
 
 const RouteHandlers = require("./handlers/route.handlers");
+const errorHandler = require("./handlers/error.handlers");
 
-const logger = morgan("combined");
+const expressApp = express();
+
+const staticPath = path.join(__dirname, "..", "db");
 
 const startServer = port => {
-  const server = http.createServer((req, res) => {
-    // Get route from the request
-    const route = url.parse(req.url).pathname;
-    const baseRoute = RouteHandlers.getBaseRoute(route);
+  expressApp
+    .use(bodyParser.urlencoded({ extended: false }))
+    .use(bodyParser.json())
+    .use(morgan("dev"))
+    .use(express.static(staticPath))
+    .use("/", RouteHandlers.enumarateHandlers)
+    .use(errorHandler);
 
-    // Get router function
-    const func = RouteHandlers.getHandler(baseRoute, req.method);
-
-    // debugger;
-
-    logger(req, res, () => func(req, res));
-  });
-
-  server.listen(port);
+  expressApp.listen(port);
 
   console.log(`Server is listening on ${port}`);
 };

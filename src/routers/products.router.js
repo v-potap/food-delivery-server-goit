@@ -6,7 +6,7 @@ const ProductsRouter = {
     GET: ProductsController.getAllProducts,
     default: DefaultController.defaultMethod
   },
-  "/products/": {
+  "/products/:id": {
     GET: ProductsController.getProductsByID,
     default: DefaultController.defaultMethod
   }
