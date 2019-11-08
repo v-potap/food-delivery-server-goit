@@ -11,12 +11,13 @@ const expressApp = express();
 const staticPath = path.join(__dirname, "..", "db");
 
 const startServer = port => {
+
   expressApp
     .use(bodyParser.urlencoded({ extended: false }))
     .use(bodyParser.json())
     .use(morgan("dev"))
     .use(express.static(staticPath))
-    .use("/", RouteHandlers.enumarateHandlers)
+    .use("/", RouteHandlers.enumarateHandlers())
     .use(errorHandler);
 
   expressApp.listen(port);

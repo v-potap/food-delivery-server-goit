@@ -19,15 +19,41 @@ class RouteHandlers {
     }
   }
 
+  static getBaseRoute(route) {
+    const baseRouteEndPoint = route.indexOf("/", 1);
+
+    if (baseRouteEndPoint == -1) {
+      return route;
+    } else {
+      return route.slice(0, baseRouteEndPoint + 1);
+    }
+  }
+
+  static getSpecificRoute(route) {
+    const baseRouteEndPoint = route.indexOf("/", 1);
+
+    if (baseRouteEndPoint == -1) {
+      return undefined;
+    } else {
+      return route.slice(baseRouteEndPoint + 1) === ""
+        ? undefined
+        : route.slice(baseRouteEndPoint + 1);
+    }
+  }
+
   static enumarateHandlers() {
     Object.entries(routes).forEach(route => {
       Object.entries(route[1]).forEach(methodHandler => {
         if (apiRoutes[methodHandler[0].toLowerCase()]) {
           apiRoutes[methodHandler[0].toLowerCase()](route[0], methodHandler[1]);
+        } else {
+          apiRoutes.use(route[0], methodHandler[1]);
         }
       });
     });
     apiRoutes.get("*", routes.default);
+
+    return apiRoutes;
   }
 }
 

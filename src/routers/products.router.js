@@ -4,11 +4,11 @@ const DefaultController = require("../controllers/default.controller");
 const ProductsRouter = {
   "/products": {
     GET: ProductsController.getAllProducts,
-    default: DefaultController.defaultMethod
+    default: DefaultController.defaultMethod,
   },
   "/products/:id": {
     GET: ProductsController.getProductsByID,
-    default: DefaultController.defaultMethod
+    default: DefaultController.defaultMethod,
   }
 };
 
