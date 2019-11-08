@@ -5,6 +5,7 @@ const path = require("path");
 
 const productsRouter = require("./routers/products.router");
 const usersRouter = require("./routers/users.router");
+const ordersRouter = require("./routers/orders.router");
 const DefaultController = require("./controllers/default.controller");
 
 const errorHandler = require("./handlers/error.handlers");
@@ -21,6 +22,7 @@ const startServer = port => {
     .use(express.static(staticPath))
     .use("/products", productsRouter)
     .use("/users", usersRouter)
+    .use("/orders", ordersRouter)
     .use("*", DefaultController.defaultRoute)
     .use(errorHandler);
 

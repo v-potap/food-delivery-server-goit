@@ -10,7 +10,6 @@ const usersFolder = path.resolve(__dirname, "../", "db/users");
 
 class UsersController {
   static signUpUser(req, res) {
-    const readFile = util.promisify(fs.readFile);
     const user = req.body;
     const err = UsersValidators.validateSignUpUser(user);
 
