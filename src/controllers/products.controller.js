@@ -4,48 +4,19 @@ const url = require("url");
 const qs = require("querystring");
 
 class ProductsController {
-  static getAllProducts(req, res) {
+  static getProductsByQuery(req, res) {
     const productsPath = path.join(
       __dirname,
       "../db/products",
       "all-products.json"
     );
 
-    res.writeHead(200, {
-      "Content-Type": "application/json"
-    });
-
-    const readStream = fs.createReadStream(productsPath);
-
-    readStream.pipe(res);
-  }
-
-  static getProductsByID(req, res) {
-    const RouteHandlers = require("../handlers/route.handlers");
-    const productsPath = path.join(
-      __dirname,
-      "../db/products",
-      "all-products.json"
-    );
-    const route = url.parse(req.url).pathname;
-    const specificRoute = RouteHandlers.getSpecificRoute(route);
     const productIDs = qs.parse(url.parse(req.url).query)["ids"];
     const categoryIDs = qs.parse(url.parse(req.url).query)["category"];
 
-    if (!specificRoute && !productIDs && !categoryIDs) {
-      res.writeHead(400, "Error: invalid request", {
-        "Content-Type": "application/json"
-      });
-      res.end(JSON.stringify({ status: "no products", products: [] }));
-      return;
-    }
-
-    const products = productIDs
-      ? productIDs.split(",")
-      : specificRoute
-      ? [specificRoute]
-      : [];
+    const products = productIDs ? productIDs.split(",") : [];
     const categories = categoryIDs ? categoryIDs.split(",") : [];
+
     const allProducts = JSON.parse(fs.readFileSync(productsPath));
 
     let filteredProducts = [];
@@ -81,6 +52,34 @@ class ProductsController {
       res.end(
         JSON.stringify({ status: "no products", products: filteredProducts })
       );
+    }
+
+    res.writeHead(200, {
+      "Content-Type": "application/json"
+    });
+  }
+
+  static getProductsByID(req, res) {
+    const productsPath = path.join(
+      __dirname,
+      "../db/products",
+      "all-products.json"
+    );
+    const route = url.parse(req.url).pathname;
+    const productID = Number.parseInt(route.slice(1));
+    const allProducts = JSON.parse(fs.readFileSync(productsPath));
+    const products = allProducts.filter(product => product.id === productID);
+
+    if (products.length > 0) {
+      res.writeHead(200, "OK", {
+        "Content-Type": "application/json"
+      });
+      res.end(JSON.stringify({ status: "success", products }));
+    } else {
+      res.writeHead(400, "Error: invalid request", {
+        "Content-Type": "application/json"
+      });
+      res.end(JSON.stringify({ status: "no products", products }));
     }
   }
 }

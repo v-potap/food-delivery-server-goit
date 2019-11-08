@@ -3,7 +3,10 @@ const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const path = require("path");
 
-const RouteHandlers = require("./handlers/route.handlers");
+const productsRouter = require("./routers/products.router");
+const usersRouter = require("./routers/users.router");
+const DefaultController = require("./controllers/default.controller");
+
 const errorHandler = require("./handlers/error.handlers");
 
 const expressApp = express();
@@ -11,13 +14,14 @@ const expressApp = express();
 const staticPath = path.join(__dirname, "..", "db");
 
 const startServer = port => {
-
   expressApp
     .use(bodyParser.urlencoded({ extended: false }))
     .use(bodyParser.json())
     .use(morgan("dev"))
     .use(express.static(staticPath))
-    .use("/", RouteHandlers.enumarateHandlers())
+    .use("/products", productsRouter)
+    .use("/users", usersRouter)
+    .use("*", DefaultController.defaultRoute)
     .use(errorHandler);
 
   expressApp.listen(port);

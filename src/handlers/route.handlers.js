@@ -40,21 +40,6 @@ class RouteHandlers {
         : route.slice(baseRouteEndPoint + 1);
     }
   }
-
-  static enumarateHandlers() {
-    Object.entries(routes).forEach(route => {
-      Object.entries(route[1]).forEach(methodHandler => {
-        if (apiRoutes[methodHandler[0].toLowerCase()]) {
-          apiRoutes[methodHandler[0].toLowerCase()](route[0], methodHandler[1]);
-        } else {
-          apiRoutes.use(route[0], methodHandler[1]);
-        }
-      });
-    });
-    apiRoutes.get("*", routes.default);
-
-    return apiRoutes;
-  }
 }
 
 module.exports = RouteHandlers;

@@ -1,7 +1,8 @@
-const errorHandler = (err, req, res, next)  => {
-    res
-      .status(500)
-      .send('Error found: ' + err.stack);
-  };
+const errorHandler = (err, req, res, next) => {
+  if (err) {
+    console.log("err", err);
+    res.status(500).send("Error found: " + err.stack);
+  }
+};
 
-  module.exports = errorHandler;
+module.exports = errorHandler;

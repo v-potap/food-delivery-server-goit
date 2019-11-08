@@ -1,15 +1,13 @@
+var express = require("express");
+
 const ProductsController = require("../controllers/products.controller");
 const DefaultController = require("../controllers/default.controller");
 
-const ProductsRouter = {
-  "/products": {
-    GET: ProductsController.getAllProducts,
-    default: DefaultController.defaultMethod,
-  },
-  "/products/:id": {
-    GET: ProductsController.getProductsByID,
-    default: DefaultController.defaultMethod,
-  }
-};
+const productsRouter = express.Router();
 
-module.exports = ProductsRouter;
+productsRouter
+  .get("/", ProductsController.getProductsByQuery)
+  .get("/:id([1-9][0-9]{7})", ProductsController.getProductsByID)
+  .get("*", DefaultController.defaultMethod);
+
+module.exports = productsRouter;
