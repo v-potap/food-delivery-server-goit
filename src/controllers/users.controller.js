@@ -1,77 +1,96 @@
 const fs = require("fs");
 const path = require("path");
+const util = require("util");
+const url = require("url");
 const qs = require("querystring");
+
 const UsersValidators = require("../handlers/users.validators");
 
+const usersFolder = path.resolve(__dirname, "../", "db/users");
+
 class UsersController {
-  saveUser = (post, user) => {
-    // получить файл с юзером
-    // найти путь папки users
-    // const userFile = path.join(__dirname, "../db/users", user);
-    // сохранить туда файл
-    // fs.writeFile(userFile, post, err => {
-    //   if (err) return "";
-    //   return userFile;
-    // });
-  };
-
   static signUpUser(req, res) {
-    // Взять данные что пришли
-    let body = "";
+    const user = req.body;
+    const err = UsersValidators.validateSignUpUser(user);
 
-    req.on("data", function(data) {
-      body = body + data;
+    if (err) {
+      res.writeHead(err.errCode, err.response.status, {
+        "Content-Type": "application/json"
+      });
+      res.end(JSON.stringify(err.response));
+      return;
+    }
 
-      console.log("Incoming data!!!!");
-    });
+    const userData = { ...user, id: Math.floor(Math.random() * 100000000) };
+    const userFile = path.join(usersFolder, "all-users.json");
+    const allUsers = JSON.parse(fs.readFileSync(userFile));
 
-    req.on("end", function() {
-      const err = UsersValidators.validateSignUpUser(body);
+    fs.writeFile(userFile, JSON.stringify([...allUsers, userData]), err => {
       if (err) {
-        res.writeHead(err.errCode, err.response.status, {
-          "Content-Type": "application/json"
-        });
-        res.end(JSON.stringify(err.response));
+        res.writeHead(500, { "Content-Type": "text/plain" });
+        res.end("Internal error!!!");
         return;
       }
 
-      const post = Object.keys(qs.parse(body))[0];
+      const responseSuccess = {
+        status: "success",
+        user: userData
+      };
 
-      // Взять username с данных, сохранить в переменную
-      const { username } = JSON.parse(body);
+      res.writeHead(201, {
+        "Content-Type": "application/json"
+      });
 
-      // Сохраняем данные в <username>.json
-      // Сохранить <username>.json в папку users
-      // const savedUser = saveUser(post, username + ".json");
-      const userFile = path.join(__dirname, "../db/users", username + ".json");
-      fs.writeFileSync(userFile, post);
-
-      if (fs.existsSync(userFile)) {
-        fs.readFile(userFile, (err, data) => {
-          if (err) {
-            res.writeHead(500, { "Content-Type": "text/plain" });
-            res.end("Internal error!!!");
-            return;
-          }
-
-          const responseSuccess = {
-            status: "success",
-            // Отправляем файл в ответе с данными юзера
-            user: JSON.parse(data)
-          };
-
-          res.writeHead(201, {
-            "Content-Type": "application/json"
-          });
-
-          // использовать response
-          res.end(JSON.stringify(responseSuccess));
-        });
-      } else {
-        res.writeHead(500, { "Content-Type": "text/plain" });
-        res.end("Internal error!!!");
-      }
+      res.end(JSON.stringify(responseSuccess));
     });
+  }
+
+  static getUsersByQuery(req, res) {
+    const usersPath = path.join(__dirname, "../db/users", "all-users.json");
+
+    const usersIDs = qs.parse(url.parse(req.url).query)["ids"];
+    const users = usersIDs ? usersIDs.split(",") : [];
+    const allUsers = JSON.parse(fs.readFileSync(usersPath));
+
+    let filteredUsers = [];
+
+    if (users.length > 0) {
+      filteredUsers = allUsers.filter(user => users.includes(user.id + ""));
+    } else {
+      filteredUsers = [...allUsers];
+    }
+
+    if (filteredUsers.length > 0) {
+      res.writeHead(200, "OK", {
+        "Content-Type": "application/json"
+      });
+      res.end(JSON.stringify({ status: "success", users: filteredUsers }));
+    } else {
+      res.writeHead(400, "Error: invalid request", {
+        "Content-Type": "application/json"
+      });
+      res.end(JSON.stringify({ status: "not found", user: filteredUsers }));
+    }
+  }
+
+  static getUsersByID(req, res) {
+    const usersPath = path.join(__dirname, "../db/users", "all-users.json");
+    const route = url.parse(req.url).pathname;
+    const userID = Number.parseInt(route.slice(1));
+    const allUsers = JSON.parse(fs.readFileSync(usersPath));
+    const users = allUsers.filter(user => user.id === userID);
+
+    if (users.length > 0) {
+      res.writeHead(200, "OK", {
+        "Content-Type": "application/json"
+      });
+      res.end(JSON.stringify({ status: "success", users }));
+    } else {
+      res.writeHead(400, "Error: invalid request", {
+        "Content-Type": "application/json"
+      });
+      res.end(JSON.stringify({ status: "no users", users }));
+    }
   }
 }
 
