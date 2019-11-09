@@ -53,10 +53,6 @@ class ProductsController {
         JSON.stringify({ status: "no products", products: filteredProducts })
       );
     }
-
-    res.writeHead(200, {
-      "Content-Type": "application/json"
-    });
   }
 
   static getProductsByID(req, res) {

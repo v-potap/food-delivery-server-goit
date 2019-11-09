@@ -71,10 +71,6 @@ class UsersController {
       });
       res.end(JSON.stringify({ status: "not found", user: filteredUsers }));
     }
-
-    res.writeHead(200, {
-      "Content-Type": "application/json"
-    });
   }
 
   static getUsersByID(req, res) {
