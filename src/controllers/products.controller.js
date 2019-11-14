@@ -2,9 +2,10 @@ const fs = require("fs");
 const path = require("path");
 const url = require("url");
 const qs = require("querystring");
+const Product = require("../modules/db/schemas/product");
 
 class ProductsController {
-  static getProductsByQuery(req, res) {
+  static async getProductsByQuery(req, res) {
     const productsPath = path.join(
       __dirname,
       "../db/products",
@@ -17,46 +18,41 @@ class ProductsController {
     const products = productIDs ? productIDs.split(",") : [];
     const categories = categoryIDs ? categoryIDs.split(",") : [];
 
-    const allProducts = JSON.parse(fs.readFileSync(productsPath));
+    const sendProducts = products => {
+      if (products.length > 0) {
+        res.writeHead(200, "OK", {
+          "Content-Type": "application/json"
+        });
+        res.end(JSON.stringify({ status: "success", products }));
+      } else {
+        res.writeHead(400, "Error: invalid request", {
+          "Content-Type": "application/json"
+        });
+        res.end(JSON.stringify({ status: "no products", products: [] }));
+      }
+    };
 
-    let filteredProducts = [];
+    const sendNoProducts = error => {
+      const errMessage = error ? error.message : "Error: invalid request";
+      res.writeHead(400, errMessage, {
+        "Content-Type": "application/json"
+      });
+      res.end(JSON.stringify({ status: "no products", products: [] }));
+    };
+
+    const options = {};
 
     if (products.length > 0) {
-      filteredProducts = allProducts.filter(product =>
-        products.includes(product.id + "")
-      );
-    } else {
-      filteredProducts = [...allProducts];
+      options._id = { $in: products };
     }
 
     if (categories.length > 0) {
-      filteredProducts = filteredProducts.filter(product => {
-        const productsOfCategory = product.categories.filter(category =>
-          categories.includes(category)
-        );
-        return productsOfCategory.length > 0;
-      });
+      options.categories = { $in: categories };
     }
 
-    if (filteredProducts.length > 0) {
-      res.writeHead(200, "OK", {
-        "Content-Type": "application/json"
-      });
-      res.end(
-        JSON.stringify({ status: "success", products: filteredProducts })
-      );
-    } else {
-      res.writeHead(400, "Error: invalid request", {
-        "Content-Type": "application/json"
-      });
-      res.end(
-        JSON.stringify({ status: "no products", products: filteredProducts })
-      );
-    }
-
-    res.writeHead(200, {
-      "Content-Type": "application/json"
-    });
+    await Product.find()
+      .then(sendProducts)
+      .catch(sendNoProducts);
   }
 
   static getProductsByID(req, res) {
