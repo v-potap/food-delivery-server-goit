@@ -5,19 +5,16 @@ const qs = require("querystring");
 const Product = require("../modules/db/schemas/product");
 
 class ProductsController {
-  static getProductsByQuery(req, res) {
+  static async getProductsByQuery(req, res) {
     const productIDs = qs.parse(url.parse(req.url).query)["ids"];
     const categoryIDs = qs.parse(url.parse(req.url).query)["category"];
 
     const products = productIDs ? productIDs.split(",") : [];
     const categories = categoryIDs ? categoryIDs.split(",") : [];
 
-    debugger;
+    const allProducts = await Product.find()
 
-    const allProducts = Product.find({}, function(err, arr) {
-      console.log("arr", arr);
-      console.log("err", err);
-    });
+    debugger;
 
     let filteredProducts = [];
 

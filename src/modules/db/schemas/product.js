@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const { Schema } = mongoose;
-const timestamp = require('../middleware/timestamp');
+const timestamp = require("../middleware/timestamp");
 
 const productSchema = new Schema({
   _id: Number,
@@ -12,11 +12,11 @@ const productSchema = new Schema({
   weight: Number,
   expiration: Number,
   creatorId: Number,
-  categories: Array,
+  categories: Array
 });
 
 productSchema.plugin(timestamp);
 
-const Product = mongoose.model('Product', productSchema, 'products');
+const Product = mongoose.model("Product", productSchema);
 
 module.exports = Product;
