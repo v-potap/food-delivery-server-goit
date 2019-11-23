@@ -1,77 +1,86 @@
-const fs = require("fs");
-const path = require("path");
-const qs = require("querystring");
+const url = require("url");
+
+const User = require("../modules/db/schemas/user");
 const UsersValidators = require("../handlers/users.validators");
 
 class UsersController {
-  saveUser = (post, user) => {
-    // получить файл с юзером
-    // найти путь папки users
-    // const userFile = path.join(__dirname, "../db/users", user);
-    // сохранить туда файл
-    // fs.writeFile(userFile, post, err => {
-    //   if (err) return "";
-    //   return userFile;
-    // });
-  };
+  static async signUpUser(req, res) {
+    const user = req.body;
+    const err = UsersValidators.validateSignUpUser(user);
 
-  static signUpUser(req, res) {
-    // Взять данные что пришли
-    let body = "";
+    if (err) {
+      res.writeHead(err.errCode, err.response.status, {
+        "Content-Type": "application/json"
+      });
+      res.end(JSON.stringify(err.response));
+      return;
+    }
 
-    req.on("data", function(data) {
-      body = body + data;
+    const newUser = await User.create(user);
 
-      console.log("Incoming data!!!!");
+    const responseSuccess = {
+      status: "success",
+      user: newUser
+    };
+
+    res.writeHead(201, {
+      "Content-Type": "application/json"
     });
 
-    req.on("end", function() {
-      const err = UsersValidators.validateSignUpUser(body);
-      if (err) {
-        res.writeHead(err.errCode, err.response.status, {
-          "Content-Type": "application/json"
-        });
-        res.end(JSON.stringify(err.response));
-        return;
-      }
+    res.end(JSON.stringify(responseSuccess));
+  }
 
-      const post = Object.keys(qs.parse(body))[0];
+  static async getUsersByID(req, res) {
+    const route = url.parse(req.url).pathname;
+    const userID = route.slice(1);
 
-      // Взять username с данных, сохранить в переменную
-      const { username } = JSON.parse(body);
+    try {
+      const user = await User.findById(userID);
 
-      // Сохраняем данные в <username>.json
-      // Сохранить <username>.json в папку users
-      // const savedUser = saveUser(post, username + ".json");
-      const userFile = path.join(__dirname, "../db/users", username + ".json");
-      fs.writeFileSync(userFile, post);
+      const responseSuccess = {
+        status: "success",
+        user
+      };
 
-      if (fs.existsSync(userFile)) {
-        fs.readFile(userFile, (err, data) => {
-          if (err) {
-            res.writeHead(500, { "Content-Type": "text/plain" });
-            res.end("Internal error!!!");
-            return;
-          }
+      res.writeHead(201, {
+        "Content-Type": "application/json"
+      });
 
-          const responseSuccess = {
-            status: "success",
-            // Отправляем файл в ответе с данными юзера
-            user: JSON.parse(data)
-          };
+      res.end(JSON.stringify(responseSuccess));
+    } catch (err) {
+      res.writeHead(400, "Invalid request", {
+        "Content-Type": "application/json"
+      });
+      res.end(JSON.stringify(err.message));
+      return;
+    }
+  }
 
-          res.writeHead(201, {
-            "Content-Type": "application/json"
-          });
+  static async updateUserByID(req, res) {
+    const route = url.parse(req.url).pathname;
+    const userID = route.slice(1);
+    const user = req.body;
 
-          // использовать response
-          res.end(JSON.stringify(responseSuccess));
-        });
-      } else {
-        res.writeHead(500, { "Content-Type": "text/plain" });
-        res.end("Internal error!!!");
-      }
-    });
+    try {
+      const newUser = await User.findByIdAndUpdate(userID, user, { new: true });
+
+      const responseSuccess = {
+        status: "success",
+        user: newUser
+      };
+
+      res.writeHead(201, {
+        "Content-Type": "application/json"
+      });
+
+      res.end(JSON.stringify(responseSuccess));
+    } catch (err) {
+      res.writeHead(400, "Invalid request", {
+        "Content-Type": "application/json"
+      });
+      res.end(JSON.stringify(err.message));
+      return;
+    }
   }
 }
 

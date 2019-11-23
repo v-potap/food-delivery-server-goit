@@ -1,21 +1,98 @@
-const fs = require("fs");
-const path = require("path");
+const url = require("url");
+const qs = require("querystring");
+const Product = require("../modules/db/schemas/product");
 
 class ProductsController {
-  static getAllProducts(req, res) {
-    const productsPath = path.join(
-      __dirname,
-      "../db/products",
-      "all-products.json"
-    );
+  static async getProductsByQuery(req, res) {
+    const productIDs = qs.parse(url.parse(req.url).query)["ids"];
+    const categoryIDs = qs.parse(url.parse(req.url).query)["category"];
 
-    res.writeHead(200, {
-      "Content-Type": "application/json"
-    });
+    const products = productIDs ? productIDs.replace(/\"/g, "").split(",") : [];
+    const categories = categoryIDs
+      ? categoryIDs.replace(/\"/g, "").split(",")
+      : [];
 
-    const readStream = fs.createReadStream(productsPath);
+    let filteredProducts = [];
+    let criteria = {};
 
-    readStream.pipe(res);
+    if (products.length > 0) {
+      criteria._id = { $in: products };
+    }
+
+    if (categories.length > 0) {
+      criteria.categories = { $in: categories };
+    }
+
+    if (criteria._id && criteria.categories) {
+      criteria = {
+        $and: [{ _id: criteria._id }, { categories: criteria.categories }]
+      };
+    }
+
+    filteredProducts = await Product.find(criteria);
+
+    if (filteredProducts.length > 0) {
+      res.writeHead(200, "OK", {
+        "Content-Type": "application/json"
+      });
+      res.end(
+        JSON.stringify({ status: "success", products: filteredProducts })
+      );
+    } else {
+      res.writeHead(400, "Error: invalid request", {
+        "Content-Type": "application/json"
+      });
+      res.end(
+        JSON.stringify({ status: "no products", products: filteredProducts })
+      );
+    }
+  }
+
+  static async getProductsByID(req, res) {
+    const route = url.parse(req.url).pathname;
+    const productID = Number.parseInt(route.slice(1));
+    const product = await Product.findOne({ _id: productID });
+
+    if (product) {
+      res.writeHead(200, "OK", {
+        "Content-Type": "application/json"
+      });
+      res.end(JSON.stringify({ status: "success", products: [product] }));
+    } else {
+      res.writeHead(400, "Error: invalid request", {
+        "Content-Type": "application/json"
+      });
+      res.end(JSON.stringify({ status: "no products", products: [] }));
+    }
+  }
+
+  static async updateProductByID(req, res) {
+    const route = url.parse(req.url).pathname;
+    const productID = route.slice(1);
+    const product = req.body;
+
+    try {
+      const newProduct = await Product.findByIdAndUpdate(productID, product, {
+        new: true
+      });
+
+      const responseSuccess = {
+        status: "success",
+        product: newProduct
+      };
+
+      res.writeHead(201, {
+        "Content-Type": "application/json"
+      });
+
+      res.end(JSON.stringify(responseSuccess));
+    } catch (err) {
+      res.writeHead(400, "Invalid request", {
+        "Content-Type": "application/json"
+      });
+      res.end(JSON.stringify(err.message));
+      return;
+    }
   }
 }
 

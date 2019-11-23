@@ -1,7 +1,10 @@
-const DefaultRoute = require("../controllers/default.controller");
+var express = require("express");
 
-const DefaultRouter = {
-  default: DefaultRoute.defaultRoute
-};
+const DefaultController = require("../controllers/default.controller");
 
-module.exports = DefaultRouter;
+const defaultRouter = express.Router();
+
+defaultRouter
+  .get("*", DefaultController.defaultRoute);
+
+module.exports = defaultRouter;

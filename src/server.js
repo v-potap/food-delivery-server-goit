@@ -1,24 +1,34 @@
-const http = require("http");
-const url = require("url");
-
+const express = require("express");
+const bodyParser = require("body-parser");
 const morgan = require("morgan");
+const path = require("path");
 
-const RouteHandlers = require("./handlers/route.handlers");
+const productsRouter = require("./routers/products.router");
+const usersRouter = require("./routers/users.router");
+const ordersRouter = require("./routers/orders.router");
+const DefaultController = require("./controllers/default.controller");
 
-const logger = morgan("combined");
+const errorHandler = require("./handlers/error.handlers");
+
+const expressApp = express();
+
+const staticPath = path.join(__dirname, "..", "db");
 
 const startServer = port => {
-  const server = http.createServer((req, res) => {
-    // Get route from the request
-    const route = url.parse(req.url).pathname;
+  expressApp
+    .use(bodyParser.urlencoded({ extended: false }))
+    .use(bodyParser.json())
+    .use(morgan("dev"))
+    .use(express.static(staticPath))
+    .use("/products", productsRouter)
+    .use("/users", usersRouter)
+    .use("/orders", ordersRouter)
+    .use("*", DefaultController.defaultRoute)
+    .use(errorHandler);
 
-    // Get router function
-    const func = RouteHandlers.getHandler(route, req.method);
+  expressApp.listen(port);
 
-    logger(req, res, () => func(req, res));
-  });
-
-  server.listen(port);
+  console.log(`Server is listening on ${port}`);
 };
 
 module.exports = startServer;
