@@ -12,7 +12,8 @@ const productSchema = new Schema({
   weight: Number,
   expiration: Number,
   creatorId: Number,
-  categories: Array
+  categories: Array,
+  likes: Number
 });
 
 productSchema.plugin(timestamp);

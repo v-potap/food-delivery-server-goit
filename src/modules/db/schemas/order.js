@@ -8,7 +8,7 @@ const orderSchema = new Schema({
   productsList: {
     type: [
       {
-        product: [{ type: ObjectId, ref: "Product", required: true }],
+        product: [{ type: Number, ref: "Product", required: true }],
         type: { type: String, enum: ["M", "XL", "XXL"], required: true },
         itemsCount: { type: Number, min: 0, required: true }
       }

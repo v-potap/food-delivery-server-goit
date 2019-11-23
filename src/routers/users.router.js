@@ -7,7 +7,6 @@ const usersRouter = express.Router();
 
 usersRouter
   .post("/", UsersController.signUpUser)
-  .get("/", UsersController.getUsersByQuery)
   .get("/:id", UsersController.getUsersByID)
   .put("/:id", UsersController.updateUserByID)
   .get("*", DefaultController.defaultMethod);

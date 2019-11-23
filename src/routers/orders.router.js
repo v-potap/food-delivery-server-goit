@@ -6,7 +6,8 @@ const DefaultController = require("../controllers/default.controller");
 const ordersRouter = express.Router();
 
 ordersRouter
-  .post("/", OrdersController.checkProducts, OrdersController.createFolder, OrdersController.createOrderJSON, OrdersController.sendOrderResponse)
+  .post("/", OrdersController.createOrder)
+  .get("/:id", OrdersController.getOrdersByID)
   .get("*", DefaultController.defaultMethod);
 
 module.exports = ordersRouter;

@@ -1,5 +1,3 @@
-const fs = require("fs");
-const path = require("path");
 const url = require("url");
 const qs = require("querystring");
 const Product = require("../modules/db/schemas/product");
@@ -65,6 +63,35 @@ class ProductsController {
         "Content-Type": "application/json"
       });
       res.end(JSON.stringify({ status: "no products", products: [] }));
+    }
+  }
+
+  static async updateProductByID(req, res) {
+    const route = url.parse(req.url).pathname;
+    const productID = route.slice(1);
+    const product = req.body;
+
+    try {
+      const newProduct = await Product.findByIdAndUpdate(productID, product, {
+        new: true
+      });
+
+      const responseSuccess = {
+        status: "success",
+        product: newProduct
+      };
+
+      res.writeHead(201, {
+        "Content-Type": "application/json"
+      });
+
+      res.end(JSON.stringify(responseSuccess));
+    } catch (err) {
+      res.writeHead(400, "Invalid request", {
+        "Content-Type": "application/json"
+      });
+      res.end(JSON.stringify(err.message));
+      return;
     }
   }
 }

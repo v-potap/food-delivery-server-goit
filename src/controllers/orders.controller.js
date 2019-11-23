@@ -1,45 +1,60 @@
-const fs = require("fs");
-const util = require("util");
-const path = require("path");
+const url = require("url");
 
 const Order = require("../modules/db/schemas/order");
-
-const productsFolder = path.resolve(__dirname, "../", "db/products");
-const productsFile = path.resolve(productsFolder, "all-products.json");
+const OrdersValidators = require("../handlers/orders.validators");
 
 class OrdersController {
-  static checkProducts(req, res, next) {
-    const readProductsFile = util.promisify(fs.readFile);
+  static async createOrder(req, res) {
+    const order = req.body;
+    const err = OrdersValidators.validateNewOrder(order);
 
-    const readProducts = () => {
-      res.json({
+    if (err) {
+      res.writeHead(err.errCode, err.response.status, {
+        "Content-Type": "application/json"
+      });
+      res.end(JSON.stringify(err.response));
+      return;
+    }
+
+    const newOrder = await Order.create(order);
+
+    const responseSuccess = {
+      status: "success",
+      order: newOrder
+    };
+
+    res.writeHead(201, {
+      "Content-Type": "application/json"
+    });
+
+    res.end(JSON.stringify(responseSuccess));
+  }
+
+  static async getOrdersByID(req, res) {
+    const route = url.parse(req.url).pathname;
+    const orderID = route.slice(1);
+
+    try {
+      const order = await Order.findById(orderID);
+
+      const responseSuccess = {
         status: "success",
-        user: userData
+        order
+      };
+
+      res.writeHead(201, {
+        "Content-Type": "application/json"
       });
-    };
 
-    const sendError = err => {
-      res.status(500);
-      res.json({
-        error: "Internal error!!!"
+      res.end(JSON.stringify(responseSuccess));
+    } catch (err) {
+      res.writeHead(400, "Invalid request", {
+        "Content-Type": "application/json"
       });
-    };
-
-    readProductsFile(productsFile, "utf-8")
-      .then((err, req, res, products) => {
-        next(err, req, res, products);
-      })
-      .catch(sendError);
+      res.end(JSON.stringify(err.message));
+      return;
+    }
   }
-
-  static createFolder(products) {
-    console.log("products", products);
-    next();
-  }
-
-  static createOrderJSON(req, res, next) {}
-
-  static sendOrderResponse(req, res, next) {}
 }
 
 module.exports = OrdersController;
