@@ -2,6 +2,8 @@ const fs = require("fs");
 const util = require("util");
 const path = require("path");
 
+const Order = require("../modules/db/schemas/order");
+
 const productsFolder = path.resolve(__dirname, "../", "db/products");
 const productsFile = path.resolve(productsFolder, "all-products.json");
 

@@ -8,7 +8,8 @@ const usersRouter = express.Router();
 usersRouter
   .post("/", UsersController.signUpUser)
   .get("/", UsersController.getUsersByQuery)
-  .get("/:id([1-9][0-9]{7})", UsersController.getUsersByID)
+  .get("/:id", UsersController.getUsersByID)
+  .put("/:id", UsersController.updateUserByID)
   .get("*", DefaultController.defaultMethod);
 
 module.exports = usersRouter;
